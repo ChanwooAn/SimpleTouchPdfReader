@@ -6,6 +6,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.barteksc.pdfviewer.PDFView
+import com.github.barteksc.pdfviewer.util.FitPolicy
+import java.io.File
 
 
 class PdfViewActivity: AppCompatActivity() {
@@ -22,13 +24,27 @@ class PdfViewActivity: AppCompatActivity() {
         }
         pdfView=findViewById(R.id.pdfView)
 
-        pdfView.fromUri(Uri.parse(pdfUri))
+        pdfView.fromFile(File(pdfUri))
+            .enableDoubletap(true)
             .enableSwipe(true)
             .defaultPage(0)
-            .swipeHorizontal(true)
-            .pageSnap(true)
+            .swipeHorizontal(false)
+            .spacing(0)
+            .onTap {
+                val currentPage = pdfView.currentPage
+                // 마지막 페이지 인덱스를 가져옴
+                val lastPage = pdfView.pageCount - 1
+                // 다음 페이지 인덱스를 계산
+                val nextPage = if (currentPage < lastPage) currentPage + 1 else lastPage
+                // 다음 페이지로 이동
+                pdfView.jumpTo(nextPage)
+                true
+            }
             .autoSpacing(true)
-            .pageFling(true)
+            .fitEachPage(false) // fit each page to the view, else smaller pages are scaled relative to largest page.
+            .pageSnap(false) // snap pages to screen boundaries
+            .pageFling(false) // make a fling change only a single page like ViewPager
+            .pageFitPolicy(FitPolicy.WIDTH) // mode to fit pages in the view
 
             .load()
 
